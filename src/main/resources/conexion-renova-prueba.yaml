@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conexion-renova-prueba-deployment
+  namespace: conexion-renova-prueba
+  labels:
+    event: conexion-renova-prueba
+    name-space: conexion-renova-prueba
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      event: conexion-renova-prueba
+  template:
+    metadata:
+      labels:
+        event: conexion-renova-prueba
+    spec:
+      containers:
+        - image: jcpuerta1/archetype:latest
+          name: conexion-renova-prueba
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: JAVA_OPTS
+            value: '-Xmx512m -Xmx1024m -XX:+UseG1GC'
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 200m
+            requests:
+              memory: 512Mi
+              cpu: 200m
+          ports:
+            - containerPort: 8080         
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conexion-renova-prueba-service
+  namespace: conexion-renova-prueba
+  labels:
+    event: conexion-renova-prueba
+    name-space: conexion-renova-prueba
+spec:
+  type: NodePort
+  ports:
+    -
+      port: 8080
+      targetPort: 8080 
+      nodePort: 32108
+  selector:
+    event: conexion-renova-prueba
